@@ -1,23 +1,79 @@
-#include <assert.h>  
-#include <stdio.h> 
-#include <stdlib.h>  
+#include <assert.h>  // for assert()
+#include <stdio.h>   // for printf()
+#include <stdlib.h>  // for malloc() and free()
+
+/* The following declares the types and functions for a data structure
+   implementing a queue of integers. You should leave these
+   declarations alone. */
 
 struct Queue;
+
+/* Allocate and return a pointer to an empty queue, or return NULL if
+   allocation failed. */
 struct Queue* queue_make();
+
+/* Free a queue and all its contents. The queue pointer must be
+   valid. */
 void queue_free(struct Queue* queue);
+
+/* Return the number of elements in a queue. The queue pointer must be valid. */
 int queue_length(struct Queue* queue);
+
+/* Push a new element at the front of the queue. The queue pointer
+   must be valid. Returns a true value on success and false if
+   allocation failed. */
 int queue_push_front(struct Queue* queue, int data);
+
+/* Push a new element at the back of the queue. The queue pointer must
+   be valid. Returns a true value on success and false if allocation
+   failed. */
 int queue_push_back(struct Queue* queue, int data);
+
+/* Return the element at the front of the queue. The queue pointer
+   must be valid and the queue must not be empty. */
 int queue_front(struct Queue* queue);
+
+/* Return the element at the front of the queue. The queue pointer
+   must be valid and the queue must not be empty. */
 int queue_back(struct Queue* queue);
+
+/* Remove the element at the front of the queue. The queue pointer
+   must be valid and the queue must not be empty. */
 void queue_pop_front(struct Queue* queue);
+
+/* Remove the element at the back of the queue. The queue pointer must
+   be valid and the queue must not be empty. */
 void queue_pop_back(struct Queue* queue);
+
+/* Remove all elements from the queue. The queue pointer must be
+   valid. */
 void queue_clear(struct Queue* queue);
+
+/* Print the queue and its contents to standard output in a
+   human-readable format for debugging purposes. */
 void queue_print(struct Queue* queue);
 
-/************************/
+/********** START OF CODE TO MODIFY **********/
 
 #define QUEUE_CAPACITY 100000 // one hundred thousand
+
+/* This is a poor implementation of the queue interface based upon a
+   fixed-size array. The array approach has two big flaws: it is
+   limited to QUEUE_CAPACITY elements, and pushing an element to the
+   front takes O(n) time, which is slow.
+   Your mission is to refactor (rewrite) this code to implement the
+   queue with a proper doubly-linked list.
+   The doubly-linked list approach is more complex, but solves both
+   these problems. It can handle any number of elements, limited only
+   by computer memory, and pushing an element to the front is O(1),
+   which is fast.
+   I expect that you will need to modify the Queue struct to have some
+   kind of head and/or tail pointer instead of a data array, and
+   create another struct called Node or something like that. The
+   definitions of all the queue functions will probably need to be
+   rewritten. However the definitions (interfaces) should stay the
+   same.
+*/
 
 struct Queue {
   int data[QUEUE_CAPACITY];
@@ -122,16 +178,25 @@ void queue_print(struct Queue* queue) {
   printf("\n");
 }
 
-/***************************/
+/********** END OF CODE TO MODIFY **********/
 
-int main(void) 
-{
+/* This main() function tests the correctness of your queue using the assert() macro. */
+
+int main(void) {
+
   struct Queue* queue;
   int ok, i;
+
+  /* Create a queue. */
   queue = queue_make();
   assert(queue != NULL);
   assert(queue_length(queue) == 0);
   queue_print(queue);
+
+  /* Test basic operation: push elements, alternating somewhat
+     randomly between the front and back. We assert correctness of the
+     queue after each step. */
+
   ok = queue_push_front(queue, 1);
   assert(ok);
   assert(queue_length(queue) == 1);
@@ -194,13 +259,22 @@ int main(void)
   queue_pop_front(queue);
   assert(queue_length(queue) == 0);
   queue_print(queue);
+
+  /* Moderate stress test: add a few thousand elements and make sure
+     the queue holds together. The array implementation will be
+     noticeably slow here, but should work. The list implementation
+     should be much faster. */
+
   printf("30k stress test...\n");
+
   for (i = 0; i < 30000; i++) {
     queue_push_front(queue, i);
     assert(queue_front(queue) == i);
     assert(queue_back(queue) == 0);
   }
   assert(queue_length(queue) == 30000);
+
+  /* Test queue_clear(). */
 
   queue_clear(queue);
   assert(queue_length(queue) == 0);
